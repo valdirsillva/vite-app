@@ -1,74 +1,11 @@
-import { useContext, useState } from 'react'
-
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Modal from '@mui/material/Modal'
-import { CustomInput, TextFieldCustom } from '../../utils/styles/custom-input'
-import { TextField } from '@mui/material'
 import { Add } from '@mui/icons-material'
-import { toast, ToastContainer } from 'react-toastify'
-import { ManagerStorage } from '../../service/manager-storage'
-import { StoreContext } from '../../context/product-store'
-import { RequiredFieldValidation } from '../../utils/validation/required-field-validation'
+import { ToastContainer } from 'react-toastify'
+import { Box, Modal, TextField, Typography} from '@mui/material'
+import { useCreateProduct } from '../../hooks/use-create-product'
+import { CustomInput, TextFieldCustom } from '../../utils/styles/custom-input'
 
 export const ProductCreate = () => {
-	const { setCounter } = useContext(StoreContext);
-
-	const [open, setOpen] = useState(false)
-	const handleOpen = () => setOpen(true)
-	const handleClose = () => setOpen(false)
-
-	const [fieldValues, setFieldValues] = useState({
-		nomeProduto: '',
-		descricaoProduto: '',
-		preco: '',
-	})
-
-	const handleChangeValues = (e) => {
-		const fieldName = e.target.name
-		const fieldValue = e.target.value
-
-		setFieldValues((current) => {
-			return {
-				...current,
-				[fieldName]: fieldValue,
-			}
-		})
-	}
-
-	const onSave = async () => {
-		try {
-			const storage = new ManagerStorage();
-			const fields = ['nomeProduto', 'descricaoProduto', 'preco'] 
-
-			 /**
-             * Valida campos obrigatórios
-             */
-			if (RequiredFieldValidation.validate(fieldValues, fields)) {
-				const response = storage.add('produtos', fieldValues);
-
-				if (response) {
-					toast.success('Produto cadastrado com sucesso.', {
-						theme: "dark",
-					})
-					setCounter(storage.getAll('produtos'))
-					clearInputs();
-				}
-			} 
-	
-		} catch (error) {
-			console.error(error)
-		}
-	}
-
-	// Função para resetar campos
-	const clearInputs = () => {
-		setFieldValues({
-			nomeProduto: '',
-			descricaoProduto: '',
-			preco: '',
-		})
-	}
+	const { fieldValues, handleChangeValues, onSave, handleOpen, handleClose, open } = useCreateProduct()
 
 	return (
 		<div >
