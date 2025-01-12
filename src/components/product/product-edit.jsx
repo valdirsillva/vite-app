@@ -1,98 +1,10 @@
-import { useContext, useState } from 'react'
-import { toast } from 'react-toastify'
-
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Modal from '@mui/material/Modal'
-
 import { Edit } from '@mui/icons-material'
-import { TextField } from '@mui/material'
-import { ManagerStorage } from '../../service/manager-storage'
-import { StoreContext } from '../../context/product-store'
+import { Box, TextField, Modal, Typography } from '@mui/material'
 import { CustomInput, TextFieldCustom } from '../../utils/styles/custom-input'
-import { RequiredFieldValidation } from '../../utils/validation/required-field-validation'
+import { useEditProduct } from '../../hooks/use-edit-product'
 
 export const ProductEdit = ({ productId }) => {
-	const storage = new ManagerStorage();
-	const { setCounter } = useContext(StoreContext)
-
-	const [open, setOpen] = useState(false)
-
-	const [fieldValues, setFieldValues] = useState({
-		nomeProduto: '',
-		descricaoProduto: '',
-		preco: '',
-	})
-
-	const handleChangeValues = (e) => {
-		const fieldName = e.target.name
-		const fieldValue = e.target.value
-
-		setFieldValues((current) => {
-			return {
-				...current,
-				[fieldName]: fieldValue,
-			}
-		})
-	}
-
-	const onEdit = async () => {
-		try {
-			const fields = ['nomeProduto', 'preco']
-
-			/**
-			* Valida campos obrigatórios
-			*/
-			if (RequiredFieldValidation.validate(fieldValues, fields)) {
-				const response = storage.update('produtos', fieldValues, productId);
-
-				if (response) {
-					toast.success('Produto editado com sucesso.', {
-						theme: "dark",
-					})
-					setCounter(storage.getAll('produtos'))
-					clearInputs();
-				}
-			}
-		} catch (error) {
-			console.error(error)
-			toast.error('Erro ao editar o produto.', {
-				theme: "dark",
-			})
-		}
-	}
-	// Função para resetar campos
-	const clearInputs = () => {
-		setFieldValues({
-			nomeProduto: '',
-			descricaoProduto: '',
-			preco: '',
-		})
-	}
-
-	const getProductById = () => {
-		try {
-			const products = JSON.parse(storage.getAll('produtos'))
-			const { id, nomeProduto, descricaoProduto, preco } = products.filter((product) => product.id === productId)[0]
-			setFieldValues({
-				id,
-				nomeProduto,
-				descricaoProduto,
-				preco,
-			})
-		} catch (err) {
-			console.error(err)
-			toast.error('Produto não encontrado', {
-				theme: 'dark'
-			})
-		}
-	}
-
-	const handleOpen = () => {
-		setOpen(true)
-		getProductById()
-	}
-	const handleClose = () => setOpen(false)
+	const { fieldValues, handleChangeValues, handleClose, handleOpen,open, onEdit } = useEditProduct(productId);
 
 	return (
 		<div >
@@ -165,7 +77,7 @@ export const ProductEdit = ({ productId }) => {
 							<button
 								type="button"
 								onClick={handleClose}
-								className={`flex justify-center border-2 border-[#ef0b0b] rounded-md transparent  px-8 py-3 text-sm font-semibold leading-6 text-white shadow-sm`}
+								className={`flex justify-center border-2 border-[#ef0b0b] rounded-md transparent px-8 py-3 text-sm font-semibold leading-6 text-white shadow-sm`}
 							>
 								Cancelar
 							</button>
